@@ -2,14 +2,18 @@
   "name": "LibrePoll",
   "version": "1.0.50",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "fmt": "prettier --write ."
   },
   "dependencies": {
-    "elysia": "latest"
+    "@elysiajs/jwt": "^0.8.0",
+    "@elysiajs/swagger": "^0.8.0",
+    "elysia": "latest",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "prettier": "^3.1.1"
   },
   "module": "src/index.js"
 }
