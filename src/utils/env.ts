@@ -1,14 +1,15 @@
 import { z } from "zod";
 
 const envVariables = z.object({
-  JWT_SECRET: z.string().min(8),
+	JWT_SECRET: z.string().min(8),
 });
 
 declare module "bun" {
-  interface Env extends z.infer<typeof envVariables> {}
+	// biome-ignore lint: It is needed to have it like this as an interface
+	interface Env extends z.infer<typeof envVariables> {}
 }
 
- /**
+/**
  * Validates the environment variables using the zod schema.
  *
  * @function

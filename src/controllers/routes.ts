@@ -7,7 +7,7 @@ import { authRouter } from "./auth";
  * and put it in this router located at `src/controllers/routes.ts`
  */
 const router = new Elysia()
-  .use(authRouter)
-  .get("/", () => ({ isLibrePoll: true, instanceName: "LibrePollOfficial" }));
+	.use(authRouter)
+	.get("/", () => ({ isLibrePoll: true, instanceName: "LibrePollOfficial" }));
 
 export { router };
