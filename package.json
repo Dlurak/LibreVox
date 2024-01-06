@@ -5,7 +5,8 @@
     "dev": "bun run --watch src/index.ts",
     "fmt": "bunx @biomejs/biome format . --write",
     "lint": "bunx @biomejs/biome lint .",
-    "check": "bunx @biomejs/biome check --apply ."
+    "check": "bunx @biomejs/biome check  .",
+    "check:apply": "bunx @biomejs/biome check --apply ."
   },
   "dependencies": {
     "@elysiajs/jwt": "^0.8.0",

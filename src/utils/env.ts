@@ -1,8 +1,8 @@
-import { Type, Static } from '@sinclair/typebox'
-import { Value } from '@sinclair/typebox/value'
+import { Static, Type } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 
 const envVariables = Type.Object({
-	JWT_SECRET: Type.String({ minLength: 8 })
+	JWT_SECRET: Type.String({ minLength: 8 }),
 });
 
 declare module "bun" {
@@ -10,4 +10,5 @@ declare module "bun" {
 	interface Env extends Static<typeof envVariables> {}
 }
 
-export const validateEnvVariables = () => Value.Check(envVariables, process.env)
+export const validateEnvVariables = () =>
+	Value.Check(envVariables, process.env);
