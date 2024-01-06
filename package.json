@@ -10,8 +10,8 @@
   "dependencies": {
     "@elysiajs/jwt": "^0.8.0",
     "@elysiajs/swagger": "^0.8.0",
-    "elysia": "latest",
-    "zod": "^3.22.4"
+    "@sinclair/typebox": "^0.32.5",
+    "elysia": "latest"
   },
   "devDependencies": {
     "@biomejs/biome": "1.4.1",

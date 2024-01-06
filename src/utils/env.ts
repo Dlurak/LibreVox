@@ -1,19 +1,13 @@
-import { z } from "zod";
+import { Type, Static } from '@sinclair/typebox'
+import { Value } from '@sinclair/typebox/value'
 
-const envVariables = z.object({
-	JWT_SECRET: z.string().min(8),
+const envVariables = Type.Object({
+	JWT_SECRET: Type.String({ minLength: 8 })
 });
 
 declare module "bun" {
 	// biome-ignore lint: It is needed to have it like this as an interface
-	interface Env extends z.infer<typeof envVariables> {}
+	interface Env extends Static<typeof envVariables> {}
 }
 
-/**
- * Validates the environment variables using the zod schema.
- *
- * @function
- * @returns  Returns true if the environment variables are valid, otherwise throws a zod error.
- * @throws {ZodError} Throws a zod error if the environment variables are not valid according to the specified schema.
- */
-export const validateEnvVariables = () => !!envVariables.parse(process.env);
+export const validateEnvVariables = () => Value.Check(envVariables, process.env)
