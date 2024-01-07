@@ -8,9 +8,8 @@ export const verifyRouter = new Elysia({ name: "verifyRouter" })
 		async ({ cookie, userJwt }) => {
 			const token = JSON.parse(JSON.stringify(cookie.auth));
 			const payload = await userJwt.verify(token);
-			console.log(token);
 
-			return !!payload
+			return payload
 				? { valid: true, type: payload.type }
 				: { valid: false, type: "invalid" };
 		},
