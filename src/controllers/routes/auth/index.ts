@@ -1,12 +1,16 @@
 import { userJwt } from "@utils/plugins/jwt";
 import { Elysia } from "elysia";
+import { verifyRouter } from "./verify";
+import cookie from "@elysiajs/cookie";
 
 const authRouter = new Elysia({ name: "authRouter" })
-	.use(userJwt)
-	.get("/auth", ({ userJwt }) =>
-		userJwt.sign({
-			type: "anonymous",
-		}),
-	);
+  .use(userJwt)
+  .use(verifyRouter)
+  .use(cookie())
+  .get("/auth", async ({ userJwt, setCookie }) => {
+    const token = await userJwt.sign({ type: "anonymous" });
+    setCookie("auth", token, {  path: "/" });
+    return token;
+  });
 
 export { authRouter };

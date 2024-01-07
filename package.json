@@ -9,6 +9,7 @@
     "check:apply": "bunx @biomejs/biome check --apply ."
   },
   "dependencies": {
+    "@elysiajs/cookie": "^0.8.0",
     "@elysiajs/jwt": "^0.8.0",
     "@elysiajs/swagger": "^0.8.0",
     "@sinclair/typebox": "^0.32.5",
