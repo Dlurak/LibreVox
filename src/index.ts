@@ -1,4 +1,4 @@
-import { router } from "@controller/routes";
+import { router } from "@controller/routes/routes";
 import { swagger } from "@elysiajs/swagger";
 import { validateEnvVariables } from "@utils/env";
 import { Elysia } from "elysia";
@@ -19,4 +19,6 @@ new Elysia()
 				return { error: "not found" };
 		}
 	})
-	.listen(3000);
+	.listen(3000, (app) => {
+		console.log(`App listens on ${app.hostname}:${app.port}`);
+	});
