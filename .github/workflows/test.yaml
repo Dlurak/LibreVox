@@ -9,6 +9,11 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     env:
+      # Please never use this password in production
+      # Here it is only in a temp databse
+      DATABASE_URL: ws://127.0.0.1:8000
+      DATABASE_ACCOUNT: root
+      DATABASE_PASSWORD: root
       JWT_SECRET: "long_string"
       PORT: "3000"
       ENV: "test"
