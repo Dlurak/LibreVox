@@ -9,11 +9,13 @@
     "check:apply": "bunx @biomejs/biome check --apply ."
   },
   "dependencies": {
-    "@elysiajs/cookie": "^0.8.0",
+    "@elysiajs/bearer": "^0.8.0",
     "@elysiajs/jwt": "^0.8.0",
     "@elysiajs/swagger": "^0.8.0",
     "@sinclair/typebox": "^0.32.5",
+    "edgedb": "^1.4.1",
     "elysia": "latest",
+    "elysia-http-status-code": "^1.0.9",
     "surrealdb.node": "^0.3.0",
     "surrealdb.ts": "^0.0.1-beta.3.6"
   },

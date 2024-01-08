@@ -1,23 +1,17 @@
-import { userJwt } from "@utils/plugins/jwt";
-import { Elysia, t } from "elysia";
+import { UNAUTHORIZED } from "@constants/responses";
+import { isLoggedIn } from "@utils/plugins/jwt";
+import { Elysia } from "elysia";
+import { HttpStatusCode } from "elysia-http-status-code";
 
 export const verifyRouter = new Elysia({ name: "verifyRouter" })
-	.use(userJwt)
-	.get(
-		"/auth/verify",
-		async ({ cookie, userJwt }) => {
-			const token = JSON.parse(JSON.stringify(cookie.auth));
-			const payload = await userJwt.verify(token);
+  .use(isLoggedIn)
+  .use(HttpStatusCode())
+  .get("/auth/verify", async ({ set, auth, httpStatus }) => {
+    const { isAuthorized } = auth;
+    if (!isAuthorized) {
+      set.status = httpStatus.HTTP_401_UNAUTHORIZED;
+      return UNAUTHORIZED;
+    }
 
-			return payload
-				? { valid: true, type: payload.type }
-				: { valid: false, type: "invalid" };
-		},
-		{
-			cookie: t.Cookie({
-				// for a reason idk this doesn't work
-				// I asked in the discord for help maybe I will optimize this in the near future
-				auth: t.Any(),
-			}),
-		},
-	);
+    return { type: auth.payload.type } as const;
+  });

@@ -1,6 +1,5 @@
 import { getDb } from "@controller/database";
 import { router } from "@controller/routes/routes";
-import cookie from "@elysiajs/cookie";
 import { swagger } from "@elysiajs/swagger";
 import { validateEnvVariables } from "@utils/env";
 import { Elysia } from "elysia";
@@ -16,7 +15,6 @@ const db = await getDb();
 
 const app = new Elysia()
 	.use(swagger({ path: "docs", autoDarkMode: true }))
-	.use(cookie)
 	.use(router)
 	.onError(({ code }) => {
 		switch (code) {
