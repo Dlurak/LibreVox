@@ -1,3 +1,4 @@
+import { getDb } from "@controller/database";
 import { router } from "@controller/routes/routes";
 import cookie from "@elysiajs/cookie";
 import { swagger } from "@elysiajs/swagger";
@@ -10,6 +11,8 @@ if (!validateEnvVariables()) {
 	console.error("This will be exported to the docs in the future");
 	process.exit(1);
 }
+
+const db = await getDb();
 
 const app = new Elysia()
 	.use(swagger({ path: "docs", autoDarkMode: true }))
@@ -29,4 +32,5 @@ if (process.env.ENV !== "test") {
 		);
 	});
 }
+
 export { app };
