@@ -25,5 +25,11 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Start EdgeDB
         uses: edgedb/setup-edgedb@v1
+      - name: Apply migration
+        run: |
+          edgedb migration create
+          edgedb migrate
+      - name: Generate Query Builder
+        run: bunx @edgedb/generate edgeql-js
       - name: Run Tests
         run: bun test
