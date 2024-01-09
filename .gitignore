@@ -42,4 +42,4 @@ yarn-error.log*
 package-lock.json
 **/*.bun
 
-*.db
+dbschema/edgeql-js

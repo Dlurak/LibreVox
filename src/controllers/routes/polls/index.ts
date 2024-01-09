@@ -3,15 +3,22 @@ import { isLoggedIn } from "@utils/plugins/jwt";
 import { Elysia } from "elysia";
 import { HttpStatusCode } from "elysia-http-status-code";
 
-export const verifyRouter = new Elysia({ name: "verifyRouter" })
-	.use(isLoggedIn)
+const pollRouter = new Elysia({ name: "pollRouter" })
 	.use(HttpStatusCode())
-	.get("/auth/verify", async ({ set, auth, httpStatus }) => {
+	.use(isLoggedIn)
+	.get("/poll", ({ set, httpStatus }) => {
+		set.status = httpStatus.HTTP_501_NOT_IMPLEMENTED;
+		return { error: "not implemented yet" };
+	})
+	.post("/poll", ({ set, auth, httpStatus }) => {
 		const { isAuthorized } = auth;
 		if (!isAuthorized) {
 			set.status = httpStatus.HTTP_401_UNAUTHORIZED;
 			return UNAUTHORIZED;
 		}
 
-		return { type: auth.payload.type } as const;
+		// TODO actually crate it
+		return "hi";
 	});
+
+export { pollRouter };

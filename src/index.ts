@@ -1,4 +1,5 @@
-import { getDb } from "@controller/database";
+import { CONFIG } from "@constants/config";
+import { createConnectedClient } from "@controller/database";
 import { router } from "@controller/routes/routes";
 import { swagger } from "@elysiajs/swagger";
 import { validateEnvVariables } from "@utils/env";
@@ -11,7 +12,8 @@ if (!validateEnvVariables()) {
 	process.exit(1);
 }
 
-const db = await getDb();
+const client = await createConnectedClient();
+console.log("Connected to the database!");
 
 const app = new Elysia()
 	.use(swagger({ path: "docs", autoDarkMode: true }))
@@ -31,4 +33,4 @@ if (process.env.ENV !== "test") {
 	});
 }
 
-export { app };
+export { app, client };

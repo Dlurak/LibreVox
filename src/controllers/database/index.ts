@@ -1,30 +1,16 @@
-import { Surreal } from "surrealdb.node";
+import { CONFIG } from "@constants/config";
+import createClient from "edgedb";
 
-export const getDb = async () => {
-	const db = new Surreal();
-	const url = process.env.DATABASE_URL.replace("$cwd", process.cwd());
+const { databaseConnectionTimeout: dbConnectionTimeout } = CONFIG;
 
-	await db.connect(url).catch((e) => {
-		console.error(e);
-		console.error(url);
-		console.error("Could not connect to the database!");
+export const createConnectedClient = async () => {
+	const client = createClient();
+	setTimeout(() => {
+		console.error(
+			`Could not connect to the database in ${dbConnectionTimeout}ms`,
+		);
 		process.exit(1);
-	});
+	}, dbConnectionTimeout);
 
-	console.log("Connected to database!");
-
-	await db
-		.signin({
-			username: process.env.DATABASE_ACCOUNT,
-			password: process.env.DATABASE_PASSWORD,
-		})
-		.catch((e) => {
-			console.error(e);
-			console.error("Could not sign in to database");
-			process.exit(1);
-		});
-
-	await db.use({ ns: process.env.ENV, db: process.env.ENV });
-
-	return db;
+	return await client.ensureConnected();
 };

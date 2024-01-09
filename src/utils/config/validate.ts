@@ -8,6 +8,7 @@ export const schema = Type.Object({
 		minLength: 1,
 		maxLength: MAX_INSTANCE_NAME_LEN,
 	}),
+	databaseConnectionTimeout: Type.Number({ minimum: 0 }),
 });
 
 export type Config = Static<typeof schema>;
