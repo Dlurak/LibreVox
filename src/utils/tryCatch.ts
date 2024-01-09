@@ -1,3 +1,5 @@
+import { IfElse } from "@ts/if";
+
 /**
  * A utility class for handling try-catch scenarios with a specified result type.
  */
@@ -29,3 +31,17 @@ class TryClass<T> {
  * @returns - An instance of TryClass.
  */
 export const Try = <T>(func: () => T) => new TryClass(func);
+
+interface TryErrorOptions {
+	async: boolean;
+}
+
+export const TryError = <T, O extends TryErrorOptions>(
+	func: () => T,
+	options: O,
+) => {
+	return new TryClass(func).catch(() => {
+		if (options.async) return new Promise((resolve) => new Error());
+		return new Error();
+	}) as T | IfElse<O["async"], Promise<Error>, Error>;
+};

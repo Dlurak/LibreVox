@@ -6,5 +6,6 @@ module default {
 		required title: str;
 		description: str;
 		required visibility: Visibility;
+		required creator: str;
 	}
 }

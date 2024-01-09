@@ -1,7 +1,8 @@
 import { DATABASE_WRITE_FAILED, UNAUTHORIZED } from "@constants/responses";
 import e from "@edgedb";
+import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
-import { Try } from "@utils/tryCatch";
+import { TryError } from "@utils/tryCatch";
 import { Elysia, t } from "elysia";
 import { HttpStatusCode } from "elysia-http-status-code";
 import { client } from "index";
@@ -16,26 +17,37 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 	.post(
 		"/poll",
 		async ({ set, auth, httpStatus, body }) => {
+			// AUTH
 			const { isAuthorized } = auth;
 			if (!isAuthorized) {
 				set.status = httpStatus.HTTP_401_UNAUTHORIZED;
 				return UNAUTHORIZED;
 			}
 
-			const query = e.insert(e.Poll, { ...body });
-			const result = Try(
+			const writeQuery = e.insert(e.Poll, { ...body, creator: "temp" });
+			const updateQuery = (id: string) =>
+				e.update(e.Poll, () => ({
+					filter_single: { id },
+					set: { creator: generateHash(auth.token, id, Operations.CREATE) },
+				}));
+
+			const writeResult = await TryError(
 				async () =>
 					await client.transaction(async (tx) => {
-						return await query.run(tx);
+						const { id } = await writeQuery.run(tx);
+						return await updateQuery(id)
+							.run(tx)
+							.catch(() => new Error());
 					}),
-			).catch(() => new Error());
+				{ async: true },
+			);
 
-			if (result instanceof Error) {
+			if (writeResult instanceof Error || !writeResult) {
 				set.status = httpStatus.HTTP_500_INTERNAL_SERVER_ERROR;
 				return DATABASE_WRITE_FAILED;
 			}
 
-			const { id } = await result;
+			const { id } = writeResult;
 
 			set.status = httpStatus.HTTP_201_CREATED;
 			return {
