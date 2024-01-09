@@ -5,7 +5,10 @@ const { databaseConnectionTimeout: dbConnectionTimeout } = CONFIG;
 
 export const createConnectedClient = async () => {
 	const client = createClient();
-	setTimeout(() => {
+	setTimeout(async () => {
+		const isConnected = await client.ensureConnected().then((c) => !!c);
+		if (isConnected) return;
+
 		console.error(
 			`Could not connect to the database in ${dbConnectionTimeout}ms`,
 		);
