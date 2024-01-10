@@ -1,6 +1,8 @@
 import { DATABASE_WRITE_FAILED, UNAUTHORIZED } from "@constants/responses";
 import e from "@edgedb";
+import { Page } from "@schemes/request/poll/page";
 import { switchSCheme } from "@schemes/request/poll/switch";
+import { insertPages } from "@utils/database/insertPages";
 import { insertUiElementsQuery } from "@utils/database/insertUiElements";
 import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
@@ -25,16 +27,16 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 				return UNAUTHORIZED;
 			}
 
-			const writeQuery = (ids: string[]) =>
-				e.insert(e.Poll, {
+			const writeQuery = async (pages: Page[]) => {
+				const pageIds = await insertPages(pages);
+				return e.insert(e.Poll, {
 					...body,
 					creator: "temp",
-					pages: e.insert(e.Page, {
-						parts: e.select(e.Part, (part) => ({
-							filter: e.op(e.cast(e.str, part.id), "in", e.set(...ids)),
-						})),
-					}),
+					pages: e.select(e.Page, (page) => ({
+						filter: e.op(e.cast(e.str, page.id), "in", e.set(...pageIds)),
+					})),
 				});
+			};
 
 			const updateQuery = (id: string) =>
 				e.update(e.Poll, () => ({
@@ -45,22 +47,7 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 			const writeResult = await TryError(
 				async () =>
 					await client.transaction(async (tx) => {
-						const uiElementIds = await insertUiElementsQuery([
-							{
-								type: "switch",
-								body: { default: true },
-							},
-							{
-								type: "switch",
-								body: { default: false },
-							},
-							{
-								type: "switch",
-								body: { default: true },
-							},
-						]);
-
-						const { id } = await writeQuery(uiElementIds).run(tx);
+						const { id } = await writeQuery(body.pages).then((q) => q.run(tx));
 
 						return await updateQuery(id)
 							.run(tx)

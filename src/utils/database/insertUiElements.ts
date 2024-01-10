@@ -1,8 +1,6 @@
 import e from "@edgedb";
-import type { Switch } from "@schemes/request/poll/switch";
+import { UiElement } from "@schemes/request/poll/uiElement";
 import { client } from "index";
-
-type UiElement = Switch;
 
 export const insertUiElementsQuery = async (elements: UiElement[]) => {
 	return client.transaction(async (tx) => {
