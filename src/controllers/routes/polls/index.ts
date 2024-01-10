@@ -1,5 +1,7 @@
 import { DATABASE_WRITE_FAILED, UNAUTHORIZED } from "@constants/responses";
 import e from "@edgedb";
+import { switchSCheme } from "@schemes/request/poll/switch";
+import { insertUiElementsQuery } from "@utils/database/insertUiElements";
 import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
 import { TryError } from "@utils/tryCatch";
@@ -17,14 +19,23 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 	.post(
 		"/poll",
 		async ({ set, auth, httpStatus, body }) => {
-			// AUTH
 			const { isAuthorized } = auth;
 			if (!isAuthorized) {
 				set.status = httpStatus.HTTP_401_UNAUTHORIZED;
 				return UNAUTHORIZED;
 			}
 
-			const writeQuery = e.insert(e.Poll, { ...body, creator: "temp" });
+			const writeQuery = (ids: string[]) =>
+				e.insert(e.Poll, {
+					...body,
+					creator: "temp",
+					pages: e.insert(e.Page, {
+						parts: e.select(e.Part, (part) => ({
+							filter: e.op(e.cast(e.str, part.id), "in", e.set(...ids)),
+						})),
+					}),
+				});
+
 			const updateQuery = (id: string) =>
 				e.update(e.Poll, () => ({
 					filter_single: { id },
@@ -34,7 +45,23 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 			const writeResult = await TryError(
 				async () =>
 					await client.transaction(async (tx) => {
-						const { id } = await writeQuery.run(tx);
+						const uiElementIds = await insertUiElementsQuery([
+							{
+								type: "switch",
+								body: { default: true },
+							},
+							{
+								type: "switch",
+								body: { default: false },
+							},
+							{
+								type: "switch",
+								body: { default: true },
+							},
+						]);
+
+						const { id } = await writeQuery(uiElementIds).run(tx);
+
 						return await updateQuery(id)
 							.run(tx)
 							.catch(() => new Error());
@@ -60,6 +87,12 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 				title: t.String({ minLength: 1 }),
 				description: t.Optional(t.String({ minLength: 1 })),
 				visibility: t.Union([t.Literal("PUBLIC"), t.Literal("PRIVATE")]),
+				pages: t.Array(
+					t.Object({
+						parts: t.Array(t.Union([switchSCheme]), { minItems: 1 }),
+					}),
+					{ minItems: 1 },
+				),
 			}),
 		},
 	);

@@ -7,5 +7,25 @@ module default {
 		description: str;
 		required visibility: Visibility;
 		required creator: str;
+		required multi pages: Page;
+		# Todo: Add a timestamp
+	}
+
+	type Page {
+		# Todo: Add conditional logic
+		required multi parts: Part;
+	}
+	
+	abstract type Part;
+	
+	type Seperator extending Part;
+
+	type Text extending Part {
+		required text: str;
+	}
+
+	type Switch extending Part {
+		required default: bool;
+		text: str;
 	}
 }
