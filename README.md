@@ -1,11 +1,13 @@
 <h1 align="center">LibreVox</h1>
 
-<img
-    src="./assets/logoBlack.svg"
-    alt="Logo"
-    width="200px"
-    height="200px"
-/>
+<div align="center">
+    <img
+        src="./assets/logoBlack.svg"
+        alt="Logo"
+        width="200px"
+        height="200px"
+    />
+</div>
 
 <p align="center">Decentralized and anonymous forms</p>
 
