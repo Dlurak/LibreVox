@@ -9,6 +9,7 @@ export const insertUiElementsQuery = async (elements: UiElement[]) => {
 			const table = {
 				switch: e.Switch,
 				text: e.Text,
+				seperator: e.Seperator,
 			}[ele.type];
 
 			ids.push(

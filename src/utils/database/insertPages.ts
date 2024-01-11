@@ -12,6 +12,8 @@ export const insertPages = (pages: Page[]) => {
 					...page,
 					number: i + 1,
 					parts: e.select(e.Part, (part) => ({
+						/* todo: sort them
+						I will probably update the page for each new ui element because everything elce is just slow	*/
 						filter: e.op(e.cast(e.str, part.id), "in", e.set(...partIds)),
 					})),
 				})
