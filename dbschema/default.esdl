@@ -14,6 +14,7 @@ module default {
 	type Page {
 		# Todo: Add conditional logic
 		required multi parts: Part;
+		required number: int16;
 	}
 	
 	abstract type Part;

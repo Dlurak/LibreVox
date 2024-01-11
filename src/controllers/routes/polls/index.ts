@@ -1,3 +1,4 @@
+import { MAX_I16 } from "@constants/ints";
 import { DATABASE_WRITE_FAILED, UNAUTHORIZED } from "@constants/responses";
 import e from "@edgedb";
 import { Page } from "@schemes/request/poll/page";
@@ -76,7 +77,7 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 				visibility: t.Union([t.Literal("PUBLIC"), t.Literal("PRIVATE")]),
 				pages: t.Array(
 					t.Object({ parts: t.Array(uiElementScheme, { minItems: 1 }) }),
-					{ minItems: 1 },
+					{ minItems: 1, maxItems: MAX_I16 },
 				),
 			}),
 		},
