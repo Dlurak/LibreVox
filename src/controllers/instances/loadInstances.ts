@@ -17,8 +17,8 @@ const loadInstanceName = async (url: string) => {
 	return Value.Decode(instanceResponseScheme, rawData).instanceName;
 };
 
-type Instance = {
-	ulr: string;
+export type Instance = {
+	url: string;
 	name: string;
 };
 
@@ -28,7 +28,8 @@ const loadInstancesPromises = () =>
 		name: await loadInstanceName(url),
 	}));
 
-export const loadInstances = async () =>
-	Promise.all(loadInstancesPromises()).then((l) =>
+export const loadInstances = async () => {
+	return Promise.all(loadInstancesPromises()).then((l) =>
 		l.filter(({ name }) => typeof name === "string"),
 	) as Promise<Instance[]>;
+};

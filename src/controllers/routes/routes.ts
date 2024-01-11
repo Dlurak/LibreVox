@@ -1,6 +1,7 @@
 import { CONFIG } from "constants/config";
 import { Elysia } from "elysia";
 import { authRouter } from "./auth";
+import { instanceRouter } from "./instances";
 import { pollRouter } from "./polls";
 
 /**
@@ -11,6 +12,7 @@ import { pollRouter } from "./polls";
 const router = new Elysia()
 	.use(authRouter)
 	.use(pollRouter)
+	.use(instanceRouter)
 	.get("/", () => ({ isLibrePoll: true, instanceName: CONFIG.name }));
 
 export { router };

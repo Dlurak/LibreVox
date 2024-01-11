@@ -1,5 +1,5 @@
-import { CONFIG } from "@constants/config";
 import { createConnectedClient } from "@controller/database";
+import { Instances } from "@controller/instances/class";
 import { router } from "@controller/routes/routes";
 import { swagger } from "@elysiajs/swagger";
 import { validateEnvVariables } from "@utils/env";
@@ -29,6 +29,10 @@ if (process.env.ENV !== "test") {
 	app.listen(process.env.PORT, (app) => {
 		console.log(
 			`App listens on ${app.url} in the ${process.env.ENV} enviroment`,
+		);
+
+		Instances.init().then(() =>
+			console.log(`Fetched ${Instances.instances.length} instances`),
 		);
 	});
 }
