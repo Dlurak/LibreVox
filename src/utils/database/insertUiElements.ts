@@ -8,10 +8,12 @@ export const insertUiElementsQuery = async (elements: UiElement[]) => {
 		for (const ele of elements) {
 			const table = {
 				switch: e.Switch,
+				text: e.Text,
 			}[ele.type];
 
 			ids.push(
 				await e
+					// @ts-ignore The type information of the function ensure safety
 					.insert(table, ele.body)
 					.run(tx)
 					.then((r) => r.id),

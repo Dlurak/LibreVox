@@ -2,8 +2,8 @@ import { DATABASE_WRITE_FAILED, UNAUTHORIZED } from "@constants/responses";
 import e from "@edgedb";
 import { Page } from "@schemes/request/poll/page";
 import { switchSCheme } from "@schemes/request/poll/switch";
+import { uiElementScheme } from "@schemes/request/poll/uiElement";
 import { insertPages } from "@utils/database/insertPages";
-import { insertUiElementsQuery } from "@utils/database/insertUiElements";
 import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
 import { TryError } from "@utils/tryCatch";
@@ -75,9 +75,7 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 				description: t.Optional(t.String({ minLength: 1 })),
 				visibility: t.Union([t.Literal("PUBLIC"), t.Literal("PRIVATE")]),
 				pages: t.Array(
-					t.Object({
-						parts: t.Array(t.Union([switchSCheme]), { minItems: 1 }),
-					}),
+					t.Object({ parts: t.Array(uiElementScheme, { minItems: 1 }) }),
 					{ minItems: 1 },
 				),
 			}),
