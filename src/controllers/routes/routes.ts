@@ -13,6 +13,6 @@ const router = new Elysia()
 	.use(authRouter)
 	.use(pollRouter)
 	.use(instanceRouter)
-	.get("/", () => ({ isLibrePoll: true, instanceName: CONFIG.name }));
+	.get("/", () => ({ isLibreVox: true, instanceName: CONFIG.name }));
 
 export { router };

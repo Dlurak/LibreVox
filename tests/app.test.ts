@@ -15,7 +15,7 @@ describe("tests are setup", () => {
 
 		expect(response).toEqual({
 			instanceName: CONFIG.name,
-			isLibrePoll: true,
+			isLibreVox: true,
 		});
 	});
 });

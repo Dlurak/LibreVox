@@ -4,7 +4,7 @@ import { CONFIG } from "constants/config";
 
 const loadInstanceInfo = async (url: string) =>
 	await fetch(url, {
-		headers: { "User-Agent": `Librepoll:${CONFIG.name}` },
+		headers: { "User-Agent": `LibreVox:${CONFIG.name}` },
 	})
 		.then((res) => res.json())
 		.catch(() => ({}));

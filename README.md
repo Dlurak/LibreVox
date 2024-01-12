@@ -15,11 +15,12 @@
     <img alt="GitHub License" src="https://img.shields.io/github/license/Dlurak/LibreVox?style=for-the-badge">
     <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/Dlurak/LibreVox/test.yaml?style=for-the-badge&label=Tests">
     <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/Dlurak/LibreVox/biome.yaml?style=for-the-badge&label=Linter">
+    <img alt="Last Commit" src="https://img.shields.io/github/last-commit/Dlurak/LibreVox?style=for-the-badge">
 </div>
 
 ---
 
-⚠️ **THIS IS STILL VERY WORK IN PROGRESS AND EVEN CORE FUNCTIONALITY DOESN'T EXIST YET!!!**⚠️
+⚠️  **THIS IS STILL VERY WORK IN PROGRESS AND EVEN CORE FUNCTIONALITY DOESN'T EXIST YET!!!** ⚠️
 
 ---
 

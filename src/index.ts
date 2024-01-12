@@ -31,9 +31,12 @@ if (process.env.ENV !== "test") {
 			`App listens on ${app.url} in the ${process.env.ENV} enviroment`,
 		);
 
-		Instances.init().then(() =>
-			console.log(`Fetched ${Instances.instances.length} instances`),
-		);
+		Instances.init().then(() => {
+			const inLen = Instances.instances.length;
+			const multipleInstances = inLen > 1;
+
+			console.log(`Fetched ${inLen} instance${multipleInstances ? "s" : ""}`);
+		});
 	});
 }
 
