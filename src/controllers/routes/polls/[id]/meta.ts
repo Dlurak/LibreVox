@@ -4,13 +4,11 @@ import { TryError } from "@utils/tryCatch";
 import { Elysia, t } from "elysia";
 import { HttpStatusCode } from "elysia-http-status-code";
 import { client } from "index";
-import { metaPollIdRouter } from "./[id]/meta";
 
-const pollIdRouter = new Elysia({ name: "pollIdRouter" })
+const metaPollIdRouter = new Elysia({ name: "metaPollIdRouter" })
 	.use(HttpStatusCode)
-	.use(metaPollIdRouter)
 	.get(
-		"/poll/:id",
+		"/poll/:id/meta",
 		async ({ params: { id }, set, httpStatus }) => {
 			const poll = await TryError(
 				() => {
@@ -18,16 +16,7 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 						.select(e.Poll, () => ({
 							...e.Poll["*"],
 							creator: false,
-							pages: {
-								number: true,
-								parts: {
-									id: true,
-									type: true,
 
-									...e.is(e.Switch, { text: true, default: true }),
-									// text is useless as `text` is already defined
-								},
-							},
 							filter_single: { id: e.cast(e.uuid, id) },
 						}))
 						.run(client);
@@ -53,4 +42,4 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 		},
 	);
 
-export { pollIdRouter };
+export { metaPollIdRouter };
