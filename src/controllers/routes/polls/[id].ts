@@ -20,9 +20,9 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 								number: true,
 								parts: {
 									id: true,
+									type: true,
 
 									...e.is(e.Switch, { text: true, default: true }),
-									// todo: the actual db entry gets an field type so i can return the type
 									// text is useless as `text` is already defined
 								},
 							},

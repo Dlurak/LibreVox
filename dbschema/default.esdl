@@ -16,16 +16,30 @@ module default {
 		required multi parts: Part;
 		required number: int16;
 	}
+
+	scalar type Type extending enum<SEPERATOR, TEXT, SWITCH>;
 	
-	abstract type Part;
+	abstract type Part {
+		required type: Type;
+	};
 	
-	type Seperator extending Part;
+	type Seperator extending Part {
+		overloaded type: Type {
+			default := Type.SEPERATOR;
+		};
+	};
 
 	type Text extending Part {
+		overloaded type: Type {
+			default := Type.TEXT;
+		};
 		required text: str;
 	}
 
 	type Switch extending Part {
+		overloaded type: Type {
+			default := Type.SWITCH;
+		};
 		required default: bool;
 		text: str;
 	}
