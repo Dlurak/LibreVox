@@ -2,7 +2,6 @@ import { MAX_I16 } from "@constants/ints";
 import { DATABASE_WRITE_FAILED, UNAUTHORIZED } from "@constants/responses";
 import e from "@edgedb";
 import { Page } from "@schemes/request/poll/page";
-import { switchSCheme } from "@schemes/request/poll/switch";
 import { uiElementScheme } from "@schemes/request/poll/uiElement";
 import { insertPages } from "@utils/database/insertPages";
 import { Operations, generateHash } from "@utils/hash/anonymous";
@@ -11,10 +10,12 @@ import { TryError } from "@utils/tryCatch";
 import { Elysia, t } from "elysia";
 import { HttpStatusCode } from "elysia-http-status-code";
 import { client } from "index";
+import { pollIdRouter } from "./[id]";
 
 const pollRouter = new Elysia({ name: "pollRouter" })
 	.use(HttpStatusCode())
 	.use(isLoggedIn)
+	.use(pollIdRouter)
 	.get("/poll", ({ set, httpStatus }) => {
 		set.status = httpStatus.HTTP_501_NOT_IMPLEMENTED;
 		return { error: "not implemented yet" };

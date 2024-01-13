@@ -14,3 +14,28 @@ export const DATABASE_WRITE_FAILED = {
 			"Could not write to the database, try again later or contact support",
 	},
 } as const;
+
+export const DATABASE_READ_FAILED = {
+	message: "internal error",
+	error: {
+		code: "DATABASE_READ_FAILED",
+		message:
+			"Could not read from the database, try again later or contact support",
+	},
+} as const;
+
+export const POLL_NOT_FOUND = {
+	message: "poll not found",
+	error: {
+		code: "POLL_NOT_FOUND",
+		message: "The requested poll could not be found",
+	},
+} as const;
+
+type ErrorResponses =
+	| typeof UNAUTHORIZED
+	| typeof DATABASE_WRITE_FAILED
+	| typeof DATABASE_READ_FAILED
+	| typeof POLL_NOT_FOUND;
+
+export type ErrorResponseCode = ErrorResponses["error"]["code"];
