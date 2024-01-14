@@ -42,7 +42,7 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 						message: `You are only creating ${bodyPagesAmount} pages but referenced a page ${biggestNextPage}`,
 					},
 				};
-			};
+			}
 			// ToDo: check if there are loops like 1 -> 2 -> 3 -> 1
 
 			const writeQuery = async (pages: Page[]) => {
