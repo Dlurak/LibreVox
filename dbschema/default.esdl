@@ -12,9 +12,11 @@ module default {
 	}
 
 	type Page {
-		# Todo: Add conditional logic
 		required multi parts: Part;
 		required number: int16;
+
+		# { condition: Condition; value: int16; }[]
+		required nextPage: json;
 	}
 
 	type Answer {

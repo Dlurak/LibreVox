@@ -1,8 +1,7 @@
 import { MAX_I16 } from "@constants/ints";
 import { DATABASE_WRITE_FAILED, UNAUTHORIZED } from "@constants/responses";
 import e from "@edgedb";
-import { Page } from "@schemes/request/poll/page";
-import { uiElementScheme } from "@schemes/request/poll/uiElement";
+import { Page, pageScheme } from "@schemes/request/poll/page";
 import { insertPages } from "@utils/database/insertPages";
 import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
@@ -28,6 +27,23 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 				set.status = httpStatus.HTTP_401_UNAUTHORIZED;
 				return UNAUTHORIZED;
 			}
+
+			const biggestNextPage = Math.max(
+				...body.pages.flatMap((p) => p.nextPage).map((p) => p.page),
+			);
+			const bodyPagesAmount = body.pages.length;
+
+			if (biggestNextPage > bodyPagesAmount) {
+				set.status = httpStatus.HTTP_400_BAD_REQUEST;
+				return {
+					message: "A page cannot point to a page that does not exist",
+					error: {
+						code: "PAGE_DOES_NOT_EXIST",
+						message: `You are only creating ${bodyPagesAmount} pages but referenced a page ${biggestNextPage}`,
+					},
+				};
+			};
+			// ToDo: check if there are loops like 1 -> 2 -> 3 -> 1
 
 			const writeQuery = async (pages: Page[]) => {
 				const pageIds = await insertPages(pages);
@@ -76,10 +92,7 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 				title: t.String({ minLength: 1 }),
 				description: t.Optional(t.String({ minLength: 1 })),
 				visibility: t.Union([t.Literal("PUBLIC"), t.Literal("PRIVATE")]),
-				pages: t.Array(
-					t.Object({ parts: t.Array(uiElementScheme, { minItems: 1 }) }),
-					{ minItems: 1, maxItems: MAX_I16 },
-				),
+				pages: t.Array(pageScheme, { minItems: 1, maxItems: MAX_I16 }),
 			}),
 		},
 	);
