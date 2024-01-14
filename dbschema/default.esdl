@@ -17,28 +17,55 @@ module default {
 		required number: int16;
 	}
 
+	type Answer {
+		required value: json;
+		required respondent: str; # Again a hash for anonymity
+	}
+
 	scalar type Type extending enum<SEPERATOR, TEXT, SWITCH>;
+	scalar type GeneralType extending enum<STATIC, ANSWERABLE>;
+
+	scalar type AnswerType extending enum<BOOL>;
 	
 	abstract type Part {
 		required type: Type;
+		required masterType: GeneralType;
+		multi answers: Answer;
 	};
+
+	abstract type StaticPart extending Part {
+		overloaded masterType: GeneralType {
+			default := GeneralType.STATIC;
+		};
+	}	
+
+
+	abstract type AnswerablePart extending Part {
+		overloaded masterType: GeneralType {
+			default := GeneralType.ANSWERABLE;
+		};
+		required answerType: AnswerType;
+	}
 	
-	type Seperator extending Part {
+	type Seperator extending StaticPart {
 		overloaded type: Type {
 			default := Type.SEPERATOR;
 		};
 	};
 
-	type Text extending Part {
+	type Text extending StaticPart {
 		overloaded type: Type {
 			default := Type.TEXT;
 		};
 		required text: str;
 	}
 
-	type Switch extending Part {
+	type Switch extending AnswerablePart {
 		overloaded type: Type {
 			default := Type.SWITCH;
+		};
+		overloaded answerType: Answer {
+			default := AnswerType.BOOL;
 		};
 		required default: bool;
 		text: str;

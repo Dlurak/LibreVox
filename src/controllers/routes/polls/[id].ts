@@ -4,11 +4,13 @@ import { TryError } from "@utils/tryCatch";
 import { Elysia, t } from "elysia";
 import { HttpStatusCode } from "elysia-http-status-code";
 import { client } from "index";
+import { pageIdRouter } from "./[id]/[page]";
 import { metaPollIdRouter } from "./[id]/meta";
 
 const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 	.use(HttpStatusCode)
 	.use(metaPollIdRouter)
+	.use(pageIdRouter)
 	.get(
 		"/poll/:id",
 		async ({ params: { id }, set, httpStatus }) => {

@@ -16,7 +16,8 @@
     "@sinclair/typebox": "^0.32.5",
     "edgedb": "^1.4.1",
     "elysia": "latest",
-    "elysia-http-status-code": "^1.0.9"
+    "elysia-http-status-code": "^1.0.9",
+    "scrypt-js": "^3.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "1.4.1",
