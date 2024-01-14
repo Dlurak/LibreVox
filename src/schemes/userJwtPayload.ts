@@ -6,4 +6,5 @@ export const userJwtPayloadScheme = t.Object({
 		// Registered users will be supported in the future
 		// t.Literal('registered')
 	]),
+	seed: t.String(),
 });

@@ -20,7 +20,7 @@ export const DATABASE_READ_FAILED = {
 	error: {
 		code: "DATABASE_READ_FAILED",
 		message:
-			"Could not read from the database, try again later or contact support",
+			"Could not read from the database, try again later or create a GitHub issue",
 	},
 } as const;
 
@@ -31,6 +31,15 @@ export const POLL_NOT_FOUND = {
 		message: "The requested poll could not be found",
 	},
 } as const;
+
+export const INTERNAL_ERROR = {
+	message: "internal server error",
+	error: {
+		code: "INTERNAL_ERROR",
+		message:
+			"A internal server error occured, try again later or create a GitHub issue",
+	},
+};
 
 type ErrorResponses =
 	| typeof UNAUTHORIZED
