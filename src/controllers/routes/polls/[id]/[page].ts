@@ -6,8 +6,10 @@ import {
 	UNAUTHORIZED,
 } from "@constants/responses";
 import { CUSTOM_TO_NORMAL_OBJ } from "@constants/types";
+import { getHighestValdiPage } from "@controller/conditions/getPage";
 import e from "@edgedb";
 import { sameContent } from "@utils/arrays/sameContent";
+import { userHasAnsweredPage } from "@utils/database/userHasAnsweredPage";
 import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
 import { Elysia, t } from "elysia";
@@ -24,6 +26,23 @@ const pageIdRouter = new Elysia()
 			if (!auth.isAuthorized) {
 				set.status = httpStatus.HTTP_401_UNAUTHORIZED;
 				return UNAUTHORIZED;
+			}
+
+			const highestValdiPage = await getHighestValdiPage(pageId, auth.token);
+
+			if (pageNumber !== highestValdiPage) {
+				set.status = httpStatus.HTTP_400_BAD_REQUEST;
+				return {
+					message: "Wrong page",
+					error: {
+						code: "WRONG_PAGE",
+						message: `You are currently trying to answer ${pageNumber} but are${
+							highestValdiPage === undefined
+								? "'nt suppossed to answer anything"
+								: ` suppossed to update page ${highestValdiPage}`
+						}`,
+					},
+				};
 			}
 
 			const data = await e
@@ -94,13 +113,12 @@ const pageIdRouter = new Elysia()
 				}
 			}
 
-			const respondent = generateHash(auth.token, data.id, Operations.ANSWER);
-			const hasAlreadyAnswered = await e
-				.select(e.Answer, (ans) => ({
-					filter: e.op(ans.respondent, "=", respondent),
-				}))
-				.run(client)
-				.then((res) => res.length > 0);
+			// ToDo: Create a function which finds out which page is next
+			// then i can check the first page and then check which page is next
+			// loop until either the user has'nt answered (error)
+			// or the page is the one the user is trying to answer (success)
+
+			const hasAlreadyAnswered = await userHasAnsweredPage(auth.token, data.id);
 
 			if (hasAlreadyAnswered) {
 				set.status = httpStatus.HTTP_409_CONFLICT;
@@ -115,6 +133,7 @@ const pageIdRouter = new Elysia()
 
 			// VALIDATION COMPLETED // INSERT DATA //
 
+			const respondent = generateHash(auth.token, data.id, Operations.ANSWER);
 			const updates: $expr_Update[] = [];
 			for (const key of Object.keys(body)) {
 				const u = e.update(e.Part, (part) => ({
@@ -137,7 +156,7 @@ const pageIdRouter = new Elysia()
 				return responseData;
 			});
 
-			return { data: updateRes };
+			return { data: updateRes.map((d) => d.id) };
 		},
 		{
 			params: t.Object({

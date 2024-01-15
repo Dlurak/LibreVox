@@ -28,6 +28,21 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 				return UNAUTHORIZED;
 			}
 
+			const bodyPages = body.pages.map((p) => p.nextPage.map((p) => p.page));
+			const smallestBodyPages = bodyPages.map((p) => Math.min(...p));
+
+			if (!smallestBodyPages.every((n, i) => n > i + 1)) {
+				set.status = httpStatus.HTTP_400_BAD_REQUEST;
+				return {
+					message: "invalid numbering",
+					error: {
+						code: "INVALID_NUMBERING",
+						message:
+							"Numbers may only go up (from 1 --> 2...) not down (3-->2-->2)",
+					},
+				};
+			}
+
 			const biggestNextPage = Math.max(
 				...body.pages.flatMap((p) => p.nextPage).map((p) => p.page),
 			);
