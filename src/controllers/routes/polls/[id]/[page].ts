@@ -9,7 +9,6 @@ import { CUSTOM_TO_NORMAL_OBJ } from "@constants/types";
 import { getHighestValdiPage } from "@controller/conditions/getPage";
 import e from "@edgedb";
 import { sameContent } from "@utils/arrays/sameContent";
-import { userHasAnsweredPage } from "@utils/database/userHasAnsweredPage";
 import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
 import { Elysia, t } from "elysia";
@@ -31,7 +30,7 @@ const pageIdRouter = new Elysia()
 			const highestValdiPage = await getHighestValdiPage(pageId, auth.token);
 
 			if (pageNumber !== highestValdiPage) {
-				set.status = httpStatus.HTTP_400_BAD_REQUEST;
+				set.status = httpStatus.HTTP_409_CONFLICT;
 				return {
 					message: "Wrong page",
 					error: {
@@ -113,24 +112,6 @@ const pageIdRouter = new Elysia()
 				}
 			}
 
-			// ToDo: Create a function which finds out which page is next
-			// then i can check the first page and then check which page is next
-			// loop until either the user has'nt answered (error)
-			// or the page is the one the user is trying to answer (success)
-
-			const hasAlreadyAnswered = await userHasAnsweredPage(auth.token, data.id);
-
-			if (hasAlreadyAnswered) {
-				set.status = httpStatus.HTTP_409_CONFLICT;
-				return {
-					message: "You've already answered this page",
-					error: {
-						code: "CONFLICT",
-						message: "You've already answered this message",
-					},
-				};
-			}
-
 			// VALIDATION COMPLETED // INSERT DATA //
 
 			const respondent = generateHash(auth.token, data.id, Operations.ANSWER);
@@ -156,6 +137,7 @@ const pageIdRouter = new Elysia()
 				return responseData;
 			});
 
+			// TODO: send the next page
 			return { data: updateRes.map((d) => d.id) };
 		},
 		{

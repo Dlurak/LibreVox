@@ -7,12 +7,18 @@ module default {
 		description: str;
 		required visibility: Visibility;
 		required creator: str;
-		required multi pages: Page;
-		# Todo: Add a timestamp
+		required multi pages: Page {
+			on source delete delete target;
+		};
+		required creationDate: datetime {
+			default := datetime_current();
+		};
 	}
 
 	type Page {
-		required multi parts: Part;
+		required multi parts: Part {
+			on source delete delete target;
+		};
 		required number: int16;
 
 		# { condition: Condition; value: int16; }[]
@@ -22,6 +28,9 @@ module default {
 	type Answer {
 		required value: json;
 		required respondent: str; # Again a hash for anonymity
+		required creationDate: datetime {
+			default := datetime_current();
+		};
 	}
 
 	scalar type Type extending enum<SEPERATOR, TEXT, SWITCH>;
@@ -32,7 +41,9 @@ module default {
 	abstract type Part {
 		required type: Type;
 		required masterType: GeneralType;
-		multi answers: Answer;
+		multi answers: Answer {
+			on source delete delete target;
+		};
 	};
 
 	abstract type StaticPart extending Part {

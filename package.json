@@ -2,6 +2,8 @@
   "name": "LibreVox",
   "version": "1.0.50",
   "scripts": {
+    "start": "bun run src/index.ts",
+	"start:prod": "ENV=production bun run src/index.ts",
     "dev": "ENV=development bun run --watch src/index.ts",
     "fmt": "bunx @biomejs/biome format . --write",
     "lint": "bunx @biomejs/biome lint .",

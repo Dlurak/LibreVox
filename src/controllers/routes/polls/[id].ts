@@ -1,5 +1,12 @@
-import { DATABASE_READ_FAILED, POLL_NOT_FOUND } from "@constants/responses";
+import {
+	DATABASE_READ_FAILED,
+	POLL_NOT_FOUND,
+	POLL_NOT_FOUND_OR_ACCESS_DENIED,
+	UNAUTHORIZED,
+} from "@constants/responses";
 import e from "@edgedb";
+import { Operations, generateHash } from "@utils/hash/anonymous";
+import { isLoggedIn } from "@utils/plugins/jwt";
 import { TryError } from "@utils/tryCatch";
 import { Elysia, t } from "elysia";
 import { HttpStatusCode } from "elysia-http-status-code";
@@ -11,6 +18,7 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 	.use(HttpStatusCode)
 	.use(metaPollIdRouter)
 	.use(pageIdRouter)
+	.use(isLoggedIn)
 	.get(
 		"/poll/:id",
 		async ({ params: { id }, set, httpStatus }) => {
@@ -53,6 +61,33 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 				id: t.String({ format: "uuid" }),
 			}),
 		},
+	)
+	.delete(
+		"/poll/:id",
+		async ({ auth, params: { id }, set, httpStatus }) => {
+			if (!auth.isAuthorized) {
+				set.status = httpStatus.HTTP_401_UNAUTHORIZED;
+				return UNAUTHORIZED;
+			}
+
+			const result = await e
+				.delete(e.Poll, () => ({
+					filter_single: {
+						id,
+						creator: generateHash(auth.token, id, Operations.CREATE),
+					},
+				}))
+				.run(client);
+
+			if (!result) {
+				set.status = httpStatus.HTTP_404_NOT_FOUND;
+				return POLL_NOT_FOUND_OR_ACCESS_DENIED;
+			}
+
+			set.status = httpStatus.HTTP_200_OK;
+			return { data: result };
+		},
+		{ params: t.Object({ id: t.String({ format: "uuid" }) }) },
 	);
 
 export { pollIdRouter };

@@ -32,6 +32,14 @@ export const POLL_NOT_FOUND = {
 	},
 } as const;
 
+export const POLL_NOT_FOUND_OR_ACCESS_DENIED = {
+	message: "poll not found or access denied",
+	error: {
+		code: "POLL_NOT_FOUND_OR_ACCESS_DENIED",
+		message: "The requested poll could not be found or access was denied",
+	},
+} as const;
+
 export const INTERNAL_ERROR = {
 	message: "internal server error",
 	error: {
