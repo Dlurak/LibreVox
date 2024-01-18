@@ -4,6 +4,7 @@ import {
 	POLL_NOT_FOUND_OR_ACCESS_DENIED,
 	UNAUTHORIZED,
 } from "@constants/responses";
+import { getHighestValdiPage } from "@controller/conditions/getPage";
 import e from "@edgedb";
 import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
@@ -11,25 +12,29 @@ import { TryError } from "@utils/tryCatch";
 import { Elysia, t } from "elysia";
 import { HttpStatusCode } from "elysia-http-status-code";
 import { client } from "index";
+
 import { pageIdRouter } from "./[id]/[page]";
-import { metaPollIdRouter } from "./[id]/meta";
 
 const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 	.use(HttpStatusCode)
-	.use(metaPollIdRouter)
 	.use(pageIdRouter)
 	.use(isLoggedIn)
 	.get(
 		"/poll/:id",
-		async ({ params: { id }, set, httpStatus }) => {
+		async ({ params: { id }, set, httpStatus, auth }) => {
+			const highestValidPage =
+				(auth.isAuthorized ? await getHighestValdiPage(id, auth.token) : 1) ||
+				NaN;
+
 			const poll = await TryError(
 				() => {
 					return e
 						.select(e.Poll, () => ({
 							...e.Poll["*"],
 							creator: false,
-							pages: {
+							pages: (page) => ({
 								number: true,
+								filter_single: e.op(page.number, "=", highestValidPage),
 								parts: {
 									id: true,
 									type: true,
@@ -37,7 +42,7 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 									...e.is(e.Switch, { text: true, default: true }),
 									// text is useless as `text` is already defined
 								},
-							},
+							}),
 							filter_single: { id: e.cast(e.uuid, id) },
 						}))
 						.run(client);
@@ -54,7 +59,12 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 				return DATABASE_READ_FAILED;
 			}
 
-			return { data: poll };
+			return {
+				data: {
+					...poll,
+					creationDate: poll.creationDate.getTime(),
+				},
+			};
 		},
 		{
 			params: t.Object({
