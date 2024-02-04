@@ -24,7 +24,7 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 		async ({ params: { id }, set, httpStatus, auth }) => {
 			const viewablePages = auth.isAuthorized
 				? await getAllViewablePageIndexes(id, auth.token)
-				: [1];
+				: { viewable: [1], isFinished: false };
 
 			const poll = await TryError(
 				() => {
@@ -34,10 +34,15 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 							creator: false,
 							pages: (page) => ({
 								number: true,
-								filter: e.op(page.number, "in", e.set(...viewablePages)),
+								filter: e.op(
+									page.number,
+									"in",
+									e.set(...viewablePages.viewable),
+								),
 								parts: {
 									id: true,
 									type: true,
+									masterType: true,
 
 									...e.is(e.Switch, { text: true, default: true }),
 									// text is useless as `text` is already defined
@@ -63,6 +68,7 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 				data: {
 					...poll,
 					creationDate: poll.creationDate.getTime(),
+					isFinished: viewablePages.isFinished,
 				},
 			};
 		},
