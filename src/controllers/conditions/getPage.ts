@@ -1,5 +1,5 @@
 import type { PageCondition } from "@schemes/conditions/pageCondition";
-import { getPageByNumber } from "@utils/database/getPageByNumber";
+import { getPageByIndex } from "@utils/database/getPageByNumber";
 import { userHasAnsweredPage } from "@utils/database/userHasAnsweredPage";
 import { parseLogicalCondition } from "./logical";
 
@@ -16,7 +16,7 @@ export const getNextPage = async (
 	pollId: string,
 	currentPageNumber: number,
 ) => {
-	const currentPage = await getPageByNumber(pollId, currentPageNumber);
+	const currentPage = await getPageByIndex(pollId, currentPageNumber);
 
 	if (!currentPage) return undefined;
 
@@ -28,22 +28,31 @@ export const getNextPage = async (
 	};
 };
 
-export const getHighestValdiPage = async (pollId: string, token: string) => {
-	let currentPageNumber = 1;
+export const getHighestValdiPage = async (
+	pollId: string,
+	token: string,
+	currentPageNumber = 1,
+): Promise<number | undefined> => {
+	const nextPage = await getNextPage(pollId, currentPageNumber);
+	if (!nextPage) return undefined;
 
-	while (true) {
-		const nextPage = await getNextPage(pollId, currentPageNumber);
+	const userHasAnswered = await userHasAnsweredPage(token, nextPage.currentId);
+	if (!userHasAnswered) return currentPageNumber;
+	if (typeof nextPage.nextPage !== "number") return undefined;
 
-		if (!nextPage) return undefined;
+	return getHighestValdiPage(pollId, token, nextPage.nextPage);
+};
 
-		const userHasAnswered = await userHasAnsweredPage(
-			token,
-			nextPage.currentId,
-		);
-		if (!userHasAnswered) return currentPageNumber;
+export const getAllViewablePageIndexes = async (
+	pollId: string,
+	token: string,
+	viewable = [1],
+): Promise<number[]> => {
+	const nextPage = await getNextPage(pollId, viewable.at(-1) as number);
+	if (!nextPage || !nextPage.nextPage) return viewable;
 
-		if (typeof nextPage.nextPage !== "number") return undefined;
-
-		currentPageNumber = nextPage.nextPage;
-	}
+	return await getAllViewablePageIndexes(pollId, token, [
+		...viewable,
+		nextPage.nextPage,
+	]);
 };

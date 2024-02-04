@@ -4,7 +4,7 @@ import {
 	POLL_NOT_FOUND_OR_ACCESS_DENIED,
 	UNAUTHORIZED,
 } from "@constants/responses";
-import { getHighestValdiPage } from "@controller/conditions/getPage";
+import { getAllViewablePageIndexes } from "@controller/conditions/getPage";
 import e from "@edgedb";
 import { Operations, generateHash } from "@utils/hash/anonymous";
 import { isLoggedIn } from "@utils/plugins/jwt";
@@ -22,9 +22,9 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 	.get(
 		"/poll/:id",
 		async ({ params: { id }, set, httpStatus, auth }) => {
-			const highestValidPage =
-				(auth.isAuthorized ? await getHighestValdiPage(id, auth.token) : 1) ||
-				NaN;
+			const viewablePages = auth.isAuthorized
+				? await getAllViewablePageIndexes(id, auth.token)
+				: [1];
 
 			const poll = await TryError(
 				() => {
@@ -34,7 +34,7 @@ const pollIdRouter = new Elysia({ name: "pollIdRouter" })
 							creator: false,
 							pages: (page) => ({
 								number: true,
-								filter_single: e.op(page.number, "=", highestValidPage),
+								filter: e.op(page.number, "in", e.set(...viewablePages)),
 								parts: {
 									id: true,
 									type: true,
