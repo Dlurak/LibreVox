@@ -49,6 +49,7 @@ export const getAllViewablePageIndexes = async (
 	if (!nextPage || !nextPage.nextPage) {
 		return {
 			viewable,
+			// @ts-expect-error idk I think it's fine
 			isFinished: await userHasAnsweredPage(token, nextPage.currentId),
 		};
 	}

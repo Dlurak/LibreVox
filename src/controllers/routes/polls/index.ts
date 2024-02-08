@@ -58,7 +58,6 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 					},
 				};
 			}
-			// ToDo: check if there are loops like 1 -> 2 -> 3 -> 1
 
 			const writeQuery = async (pages: Page[]) => {
 				const pageIds = await insertPages(pages);
@@ -79,13 +78,24 @@ const pollRouter = new Elysia({ name: "pollRouter" })
 
 			const writeResult = await TryError(
 				async () =>
-					await client.transaction(async (tx) => {
-						const { id } = await writeQuery(body.pages).then((q) => q.run(tx));
+					await client
+						.transaction(async (tx) => {
+							const { id } = await writeQuery(body.pages)
+								.then((q) => q.run(tx))
+								.catch((e) => {
+									console.log(e);
+									return { id: new Error() };
+								});
 
-						return await updateQuery(id)
-							.run(tx)
-							.catch(() => new Error());
-					}),
+							if (id instanceof Error) return new Error();
+
+							return await updateQuery(id)
+								.run(tx)
+								.catch(() => new Error());
+						})
+						.catch((e) => {
+							throw e;
+						}),
 				{ async: true },
 			);
 

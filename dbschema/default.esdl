@@ -58,6 +58,7 @@ module default {
 			default := GeneralType.ANSWERABLE;
 		};
 		required answerType: AnswerType;
+		required varName: str;
 	}
 	
 	type Seperator extending StaticPart {
@@ -77,7 +78,7 @@ module default {
 		overloaded type: Type {
 			default := Type.SWITCH;
 		};
-		overloaded answerType: Answer {
+		overloaded answerType: AnswerType {
 			default := AnswerType.BOOL;
 		};
 		required default: bool;
